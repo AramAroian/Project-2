@@ -62,12 +62,26 @@ input:checked + .slider:before {
   width: 6rem;
 }
 
-
-.card-custom-img{
-    width: 3rem;
+.card-custom-img {
+  width: 3rem;
 }
 
-.card-title{
-    text-transform: uppercase;
-    font-weight: bold;
+.card-title {
+  text-transform: uppercase;
+  font-weight: bold;
+}
+
+#navbarDiv {
+  margin-bottom: 2rem;
+}
+
+.parallax {
+  background-image: url("/assets/background.jpg");
+
+  min-height: 500px;
+
+  background-attachment: fixed;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
 }
