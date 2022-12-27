@@ -3,6 +3,7 @@
   display: inline-block;
   width: 60px;
   height: 34px;
+  margin-bottom: 1rem;
 }
 
 .switch input {
@@ -58,8 +59,10 @@ input:checked + .slider:before {
   border-radius: 50%;
 }
 
-.card {
-  width: 6rem;
+.coin-card {
+  width: 18rem;
+  margin-right: 2rem;
+  margin-bottom: 0.5rem;
 }
 
 .card-custom-img {
@@ -67,6 +70,11 @@ input:checked + .slider:before {
 }
 
 .card-title {
+  text-transform: uppercase;
+  font-weight: bold;
+}
+
+.title {
   text-transform: uppercase;
   font-weight: bold;
 }
@@ -84,4 +92,8 @@ input:checked + .slider:before {
   background-position: center;
   background-repeat: no-repeat;
   background-size: cover;
+}
+
+.collapse {
+  margin-bottom: 0.5rem;
 }
