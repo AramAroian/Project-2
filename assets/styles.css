@@ -1,3 +1,15 @@
+body{
+  align-content: center;
+}
+
+#content {
+ display: none;
+}
+
+#infoConetent{
+  display: none;
+}
+
 .switch {
   position: relative;
   display: inline-block;
@@ -96,4 +108,46 @@ input:checked + .slider:before {
 
 .collapse {
   margin-bottom: 0.5rem;
+}
+
+.loader {
+
+  height: 100vh;
+
+  width: 100%;
+  overflow: hidden;
+  position: absolute;
+}
+
+.loader>div {
+
+  height: 5rem;
+  width: 5rem;
+  border: 10px solid rgb(58, 58, 58);
+  border-top-color: rgb(0, 211, 211);
+  margin: auto;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  border-radius: 50%;
+  animation: spin 1.5s infinite linear;
+}
+
+@keyframes spin {
+  100%{
+    transform: rotate(360deg)
+  }
+}
+
+
+.card-img-top {
+  width: fit-content;
+}
+
+
+
+
+.about-container {
+  width: 20rem;
 }

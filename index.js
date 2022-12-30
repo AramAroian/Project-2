@@ -1,26 +1,20 @@
 $(function () {
   //event listeners and variables
-  let coins = [];
-  let coinPrice = [];
-  let followedCoins = [];
+
   let tempSelected;
-
-  let sessionData = [];
-
-  let searchArr = [];
 
   const home = $("#home");
   home.on("click", renderHomePage);
 
   const reports = $("#reports");
-  reports.on("click");
+  reports.on("click", renderReports);
 
   const about = $("#about");
-  about.on("click");
+  about.on("click", renderAbout);
 
   const mainDiv = $("#mainDiv");
   mainDiv.on("change", "input", handleSelection);
-  mainDiv.on("click", "a", renderInfo);
+  mainDiv.on("click", "a", getPriceData);
 
   const coinModal = $("#staticBackdrop");
   const coinModalBody = $(".table-body");
@@ -29,13 +23,12 @@ $(function () {
   const modalSaveBtn = $("#saveChanges");
   modalSaveBtn.on("click", handleSave);
 
-  // const searchInput = $("#search");
-  // searchInput.keyup(function () {
-  //   searchCoins($(this).val().toLowerCase());
-  // });
+  const modalCancelBtn = $("#cancel");
+  modalCancelBtn.on("click", handleCancel);
 
-  // const searchButton = $("#searchButton");
-  // searchButton.on("click", searchCoins(searchInput.val()));
+  const searchInput = $("#search");
+
+  $("form").submit(handleSearch);
 
   // Getting info from API
 
@@ -47,27 +40,10 @@ $(function () {
     });
   }
 
-  function getPriceData(id) {
-    $.ajax({
-      url: `https://api.coingecko.com/api/v3/coins/${id}`,
-      success: (data) => localStorage.setItem(`${id}`, JSON.stringify(data)),
-      error: (err) => console.error(err.status, err.responseText),
-    });
-  }
-
-  // $('#loadingDiv')
-  // .hide()
-  // .ajaxStart(function() {
-  //     $(this).show();
-  // })
-  // .ajaxStop(function() {
-  //     $(this).hide();
-  // });
-
   // getting data from localstorage
 
   function getStoredCoins() {
-    coins = JSON.parse(localStorage.getItem("coins"));
+    return JSON.parse(localStorage.getItem("coins"));
   }
 
   function getStoredPrices(id) {
@@ -78,7 +54,7 @@ $(function () {
 
   function renderHomePage() {
     $.when(getCoinData()).done(() => {
-      getStoredCoins();
+      coins = getStoredCoins();
       renderMainDiv(coins, mainDiv);
     });
   }
@@ -87,7 +63,7 @@ $(function () {
     mainDiv.html("");
     let newCoin;
     let isChecked;
-    getFollowedCoins();
+    followedCoins = getFollowedCoins();
 
     arr.forEach(function (coin) {
       if (
@@ -104,7 +80,7 @@ $(function () {
         <div class="row row-cols-1 row-cols-md-4" >
           <div  class="card coin-card">
             <div class="card-body">
-              <img src="${coin.image}" class="card-custom-img" alt="...">
+              
               <h5 class="card-title">${coin.symbol}</h5>
               <p class="card-text">${coin.name}</p>
               
@@ -112,6 +88,7 @@ $(function () {
             <a class="btn btn-primary" data-bs-toggle="collapse" id="${coin.id}" href="#moreInfo_${coin.id}" role="button" aria-expanded="false" aria-controls="moreInfo_${coin.id}">
               More info
             </a>
+
           </p>
              
             </div>
@@ -135,6 +112,8 @@ $(function () {
   
       `;
       mainDiv.append(newCoin);
+      $(".loader").fadeOut(1000);
+      $("#content").fadeIn(1000);
     });
   }
 
@@ -142,23 +121,43 @@ $(function () {
 
   // handling more info
 
-  function renderInfo(event) {
+  function getPriceData(event) {
     let id = event.target.id;
     let coinInfo;
+    $(`.${id}`).html(`    
+    <div id= "smallSpinner" class="spinner-border text-info" role="status">
+    </div>
+
+  `);
+
     if (localStorage.getItem(`${id}`) === null) {
-      $.when(getPriceData(id)).then(() => {
+      $.ajax({
+        url: `https://api.coingecko.com/api/v3/coins/${id}`,
+        success: (data) => localStorage.setItem(`${id}`, JSON.stringify(data)),
+        error: (err) => console.error(err.status, err.responseText),
+      }).done(() => {
         coinInfo = getStoredPrices(id);
-        console.log("new data fetched");
+
+        $(`.${id}`).html(``);
+        $(`.${id}`).append(
+          `<img src="${coinInfo.image.small}" class="card-custom-img" alt="${coinInfo.name}">
+          <div id="infoContent"> Current coin price is: <br/> ${coinInfo.market_data.current_price.usd} $ <br/> ${coinInfo.market_data.current_price.eur} € <br/> ${coinInfo.market_data.current_price.ils} ₪
+          </div>`
+        );
+        setTimeout(() => {
+          localStorage.removeItem(`${id}`);
+        }, 60 * 2 * 1000);
       });
     } else {
       coinInfo = getStoredPrices(id);
-      console.log("data already exists");
+      $(`.${id}`).html(``);
+      $(`.${id}`).append(
+        `
+        <img src="${coinInfo.image.small}" class="card-custom-img" alt="${coinInfo.name}">
+        <div id="infoContent" > Current coin price is: <br/> ${coinInfo.market_data.current_price.usd} $ <br/> ${coinInfo.market_data.current_price.eur} € <br/> ${coinInfo.market_data.current_price.ils} ₪
+        </div>`
+      );
     }
-
-    $(`.${id}`).html("");
-    $(`.${id}`).append(
-      `Current coin price is: <br/> ${coinInfo.market_data.current_price.usd}$ <br/> ${coinInfo.market_data.current_price.eur}€ <br/> ${coinInfo.market_data.current_price.ils}₪`
-    );
   }
 
   //store selected coins
@@ -167,7 +166,15 @@ $(function () {
   }
 
   function getFollowedCoins() {
-    followedCoins = JSON.parse(localStorage.getItem("followedCoins"));
+    return JSON.parse(localStorage.getItem("followedCoins"));
+  }
+
+  function setTempStateFolloewd(arr) {
+    localStorage.setItem("tempStateFollowed", JSON.stringify(arr));
+  }
+
+  function getTempStateFolloewddCoins() {
+    return JSON.parse(localStorage.getItem("tempStateFollowed"));
   }
 
   // selects a specific coin
@@ -183,15 +190,16 @@ $(function () {
   function addCoin(event) {
     id = event.target.id;
     let result = coins.find((coin) => coin.symbol == id);
-    getFollowedCoins();
+    followedCoins = getFollowedCoins();
     if (followedCoins == null) {
       let arr = [];
       arr.push(result);
-      followdCoins = setFollowedCoins(arr);
+      setFollowedCoins(arr);
     } else if (followedCoins.length < 5) {
       followedCoins.push(result);
       setFollowedCoins(followedCoins);
     } else {
+      setTempStateFolloewd(followedCoins);
       tempSelected = result;
       setTimeout(() => {
         $(`#${id}`).prop("checked", false);
@@ -203,9 +211,11 @@ $(function () {
 
   function removeCoin(event) {
     id = event.target.id;
-    let index = followedCoins.findIndex((coin) => coin.symbol == id);
-    followedCoins.splice(index, 1);
-    setFollowedCoins(followedCoins);
+    if (followedCoins !== null) {
+      let index = followedCoins.findIndex((coin) => coin.symbol == id);
+      followedCoins.splice(index, 1);
+      setFollowedCoins(followedCoins);
+    }
   }
 
   function updateSavedCoins() {
@@ -213,6 +223,12 @@ $(function () {
       followedCoins.push(tempSelected);
       setFollowedCoins(followedCoins);
     }
+  }
+
+  function handleCancel() {
+    followedCoins = getTempStateFolloewddCoins();
+    setFollowedCoins(followedCoins);
+    renderHomePage();
   }
 
   function handleSave() {
@@ -242,23 +258,242 @@ $(function () {
     });
   }
 
-  // function for searching for coins on type
+  // function for searching for coins
 
-  // function searchCoins(searchText) {
-  //   searchArr = [];
+  function handleSearch(event) {
+    event.preventDefault();
+    coins = getStoredCoins();
+    let searchString = searchInput.focus().val().toLowerCase();
+    let result = coins.filter(
+      (coin) =>
+        coin.symbol.toString().includes(searchString) ||
+        coin.name.toLowerCase().toString().includes(searchString)
+    );
+    if (result.length > 0) {
+      renderMainDiv(result, mainDiv);
+    } else {
+      alert(`There are no results matching your query`);
+    }
+  }
 
-  //   $(`.coin-card:contains(${searchText})`).each(function () {
-  //     searchArr.push($(this));
-  //   });
+  function renderReports() {
+    mainDiv.html(`
+    <div id="chartContainer" style="height: 370px; width: 100%;"></div>
+    `);
 
-  //   if (searchArr.length != 0) {
-  //     renderMainDiv(searchArr, mainDiv);
-  //   } else {
-  //     renderHomePage();
-  //   }
-  //   console.log(searchArr);
-  // }
+    followedCoins = getFollowedCoins();
 
-  //testing ground
-  $(document).ready(renderHomePage());
+    while (followedCoins.length < 5) {
+      followedCoins.push("");
+    }
+
+    let isShown = [];
+
+    followedCoins.forEach((item, index) => {
+      if (item !== "") {
+        isShown[index] = true;
+      } else {
+        isShown[index] = false;
+      }
+    });
+
+    var dataPoints1 = [];
+    var dataPoints2 = [];
+    var dataPoints3 = [];
+    var dataPoints4 = [];
+    var dataPoints5 = [];
+
+    var options = {
+      title: {
+        text: "Live Reports",
+      },
+      axisX: {
+        title: "chart updates every 2 secs",
+      },
+      axisY: {
+        suffix: "USD",
+      },
+      toolTip: {
+        shared: true,
+      },
+      legend: {
+        cursor: "pointer",
+        verticalAlign: "top",
+        fontSize: 22,
+        fontColor: "dimGrey",
+        itemclick: toggleDataSeries,
+      },
+      data: [
+        {
+          type: "line",
+          xValueType: "dateTime",
+          yValueFormatString: "###.00",
+          xValueFormatString: "hh:mm:ss TT",
+          showInLegend: isShown[0],
+          name: `${followedCoins[0].name}`,
+          dataPoints: dataPoints1,
+        },
+        {
+          type: "line",
+          xValueType: "dateTime",
+          yValueFormatString: "###.00",
+          showInLegend: isShown[1],
+          name: `${followedCoins[1].name}`,
+          dataPoints: dataPoints2,
+        },
+        {
+          type: "line",
+          xValueType: "dateTime",
+          yValueFormatString: "###.00",
+          showInLegend: isShown[2],
+          name: `${followedCoins[2].name}`,
+          dataPoints: dataPoints3,
+        },
+        {
+          type: "line",
+          xValueType: "dateTime",
+          yValueFormatString: "###.00",
+          showInLegend: isShown[3],
+          name: `${followedCoins[3].name}`,
+          dataPoints: dataPoints4,
+        },
+        {
+          type: "line",
+          xValueType: "dateTime",
+          yValueFormatString: "###.00",
+          showInLegend: isShown[4],
+          name: `${followedCoins[4].name}`,
+          dataPoints: dataPoints5,
+        },
+      ],
+    };
+
+    var chart = $("#chartContainer").CanvasJSChart(options);
+
+    function toggleDataSeries(e) {
+      if (typeof e.dataSeries.visible === "undefined" || e.dataSeries.visible) {
+        e.dataSeries.visible = false;
+      } else {
+        e.dataSeries.visible = true;
+      }
+      e.chart.render();
+    }
+
+    // initial value
+
+    let yValue = [];
+
+    followedCoins.forEach((item, index) => {
+      let id = item.symbol;
+      if (id !== undefined) {
+        let result = null;
+        id = id.toUpperCase();
+
+        $.ajax({
+          url: `https://min-api.cryptocompare.com/data/pricemulti?fsyms=${id}&tsyms=USD`,
+          success: (data) => (result = data),
+          error: (err) => console.error(err.status, err.responseText),
+        }).done(() => {
+          result = Object.values(result);
+
+          yValue[index] = result[0].USD;
+        });
+      }
+    });
+
+    const updateInterval = 2000;
+
+    let time = new Date();
+
+    function updateChart(count) {
+      count = count || 1;
+
+      for (var i = 0; i < count; i++) {
+        time.setTime(time.getTime() + updateInterval);
+      }
+
+      yValue.forEach((item, index) => {
+        let id = followedCoins[index].symbol;
+        if (id !== undefined) {
+          let result = null;
+          id = id.toUpperCase();
+
+          $.ajax({
+            url: `https://min-api.cryptocompare.com/data/pricemulti?fsyms=${id}&tsyms=USD`,
+            success: (data) => {
+              result = data;
+            },
+            error: (err) => console.error(err.status, err.responseText),
+          }).done(() => {
+            result = Object.values(result);
+
+            yValue[index] = result[0].USD;
+
+            dataPoints1.push({
+              x: time.getTime(),
+              y: yValue[0],
+            });
+            dataPoints2.push({
+              x: time.getTime(),
+              y: yValue[1],
+            });
+            dataPoints3.push({
+              x: time.getTime(),
+              y: yValue[2],
+            });
+            dataPoints4.push({
+              x: time.getTime(),
+              y: yValue[3],
+            });
+            dataPoints5.push({
+              x: time.getTime(),
+              y: yValue[4],
+            });
+            options.data[0].legendText =
+              `${followedCoins[0].name}: ` + yValue[0] + "$";
+            options.data[1].legendText =
+              `${followedCoins[1].name}: ` + yValue[1] + "$";
+            options.data[2].legendText =
+              `${followedCoins[2].name}: ` + yValue[2] + "$";
+            options.data[3].legendText =
+              `${followedCoins[3].name}: ` + yValue[3] + "$";
+            options.data[4].legendText =
+              `${followedCoins[4].name}: ` + yValue[4] + "$";
+          });
+        }
+      });
+
+      $("#chartContainer").CanvasJSChart().render();
+    }
+    // generates first set of dataPoints
+    updateChart(100);
+    let chartInterval = setInterval(function () {
+      updateChart();
+    }, updateInterval);
+    home.on("click", () => {
+      clearInterval(chartInterval);
+    });
+    about.on("click", () => {
+      clearInterval(chartInterval);
+    });
+  }
+
+  function renderAbout() {
+    mainDiv.html(`
+    <div class="about-container container">
+        <div class="card about-card" style="width: 18rem;">
+      <img src="./assets/AboutPic.JPG" class="card-img-top" alt="DevPic">
+      <div class="card-body">
+        <h5 class="card-title">About</h5>
+        <p class="card-text">Crypto monitor was developed by Aram Aroian.</p>
+        <p>For further information contact me at: aramaroian1@gmail.com</p>
+      </div>
+    </div>
+    </div>
+    `);
+  }
+
+  //executing render homepage
+
+  renderHomePage();
 });
