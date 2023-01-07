@@ -1,12 +1,22 @@
-body{
+body {
   align-content: center;
+  
+}
+
+h1 {
+  font-size: 7rem;
+  color: aliceblue;
+  padding-top: 2rem;
+  padding-left: 4rem;
 }
 
 #content {
- display: none;
+  padding: 2rem;
+  padding-bottom: 7rem;
+  background-image: linear-gradient(45deg, rgb(0, 10, 70), rgb(0, 66, 63));
 }
 
-#infoConetent{
+#infoConetent {
   display: none;
 }
 
@@ -71,10 +81,16 @@ input:checked + .slider:before {
   border-radius: 50%;
 }
 
+#mainDiv {
+  justify-content: center;
+}
+
 .coin-card {
   width: 18rem;
   margin-right: 2rem;
   margin-bottom: 0.5rem;
+  background-image: linear-gradient(45deg, rgb(44, 53, 107), rgb(0, 216, 205));
+  color: aliceblue;
 }
 
 .card-custom-img {
@@ -91,14 +107,19 @@ input:checked + .slider:before {
   font-weight: bold;
 }
 
-#navbarDiv {
-  margin-bottom: 2rem;
+.navbar {
+  background-image: linear-gradient(180deg, rgb(44, 53, 107), rgb(0, 216, 205));
 }
+
+.nav-link {
+  color: whitesmoke;
+}
+
 
 .parallax {
   background-image: url("/assets/background.jpg");
 
-  min-height: 500px;
+  min-height: 400px;
 
   background-attachment: fixed;
   background-position: center;
@@ -111,7 +132,6 @@ input:checked + .slider:before {
 }
 
 .loader {
-
   height: 100vh;
 
   width: 100%;
@@ -119,8 +139,7 @@ input:checked + .slider:before {
   position: absolute;
 }
 
-.loader>div {
-
+.loader > div {
   height: 5rem;
   width: 5rem;
   border: 10px solid rgb(58, 58, 58);
@@ -135,19 +154,23 @@ input:checked + .slider:before {
 }
 
 @keyframes spin {
-  100%{
-    transform: rotate(360deg)
+  100% {
+    transform: rotate(360deg);
   }
 }
-
 
 .card-img-top {
   width: fit-content;
 }
 
-
-
-
 .about-container {
   width: 20rem;
+}
+
+
+#chartContainer {
+  height: 370px;
+  width: 100%;
+  text-align: center;
+  color: aliceblue;
 }

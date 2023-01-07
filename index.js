@@ -40,8 +40,6 @@ $(function () {
     });
   }
 
-  // getting data from localstorage
-
   function getStoredCoins() {
     return JSON.parse(localStorage.getItem("coins"));
   }
@@ -93,7 +91,7 @@ $(function () {
              
             </div>
 
-          <div class="collapse" id="moreInfo_${coin.id}">
+          <div class="collapse btn btn-info" id="moreInfo_${coin.id}">
             <div class="card card-body ${coin.id}" id="">
 
               
@@ -116,8 +114,6 @@ $(function () {
       $("#content").fadeIn(1000);
     });
   }
-
-  // navigation functions
 
   // handling more info
 
@@ -277,205 +273,216 @@ $(function () {
   }
 
   function renderReports() {
-    mainDiv.html(`
-    <div id="chartContainer" style="height: 370px; width: 100%;"></div>
-    `);
-
     followedCoins = getFollowedCoins();
 
-    while (followedCoins.length < 5) {
-      followedCoins.push("");
-    }
+    if (followedCoins == null) {
+      mainDiv.html(`
+      <div id="chartContainer">
+        <h2>Please select coin(s) at the homepage to generate live reports</h2>
+      </div>
+      `);
+    } else {
+      mainDiv.html(`
+      <div id="chartContainer"></div>
+      `);
 
-    let isShown = [];
-
-    followedCoins.forEach((item, index) => {
-      if (item !== "") {
-        isShown[index] = true;
-      } else {
-        isShown[index] = false;
-      }
-    });
-
-    var dataPoints1 = [];
-    var dataPoints2 = [];
-    var dataPoints3 = [];
-    var dataPoints4 = [];
-    var dataPoints5 = [];
-
-    var options = {
-      title: {
-        text: "Live Reports",
-      },
-      axisX: {
-        title: "chart updates every 2 secs",
-      },
-      axisY: {
-        suffix: "USD",
-      },
-      toolTip: {
-        shared: true,
-      },
-      legend: {
-        cursor: "pointer",
-        verticalAlign: "top",
-        fontSize: 22,
-        fontColor: "dimGrey",
-        itemclick: toggleDataSeries,
-      },
-      data: [
-        {
-          type: "line",
-          xValueType: "dateTime",
-          yValueFormatString: "###.00",
-          xValueFormatString: "hh:mm:ss TT",
-          showInLegend: isShown[0],
-          name: `${followedCoins[0].name}`,
-          dataPoints: dataPoints1,
-        },
-        {
-          type: "line",
-          xValueType: "dateTime",
-          yValueFormatString: "###.00",
-          showInLegend: isShown[1],
-          name: `${followedCoins[1].name}`,
-          dataPoints: dataPoints2,
-        },
-        {
-          type: "line",
-          xValueType: "dateTime",
-          yValueFormatString: "###.00",
-          showInLegend: isShown[2],
-          name: `${followedCoins[2].name}`,
-          dataPoints: dataPoints3,
-        },
-        {
-          type: "line",
-          xValueType: "dateTime",
-          yValueFormatString: "###.00",
-          showInLegend: isShown[3],
-          name: `${followedCoins[3].name}`,
-          dataPoints: dataPoints4,
-        },
-        {
-          type: "line",
-          xValueType: "dateTime",
-          yValueFormatString: "###.00",
-          showInLegend: isShown[4],
-          name: `${followedCoins[4].name}`,
-          dataPoints: dataPoints5,
-        },
-      ],
-    };
-
-    var chart = $("#chartContainer").CanvasJSChart(options);
-
-    function toggleDataSeries(e) {
-      if (typeof e.dataSeries.visible === "undefined" || e.dataSeries.visible) {
-        e.dataSeries.visible = false;
-      } else {
-        e.dataSeries.visible = true;
-      }
-      e.chart.render();
-    }
-
-    // initial value
-
-    let yValue = [];
-
-    followedCoins.forEach((item, index) => {
-      let id = item.symbol;
-      if (id !== undefined) {
-        let result = null;
-        id = id.toUpperCase();
-
-        $.ajax({
-          url: `https://min-api.cryptocompare.com/data/pricemulti?fsyms=${id}&tsyms=USD`,
-          success: (data) => (result = data),
-          error: (err) => console.error(err.status, err.responseText),
-        }).done(() => {
-          result = Object.values(result);
-
-          yValue[index] = result[0].USD;
-        });
-      }
-    });
-
-    const updateInterval = 2000;
-
-    let time = new Date();
-
-    function updateChart(count) {
-      count = count || 1;
-
-      for (var i = 0; i < count; i++) {
-        time.setTime(time.getTime() + updateInterval);
+      while (followedCoins.length < 5) {
+        followedCoins.push("");
       }
 
-      yValue.forEach((item, index) => {
-        let id = followedCoins[index].symbol;
+      let isShown = [];
+
+      followedCoins.forEach((item, index) => {
+        if (item !== "") {
+          isShown[index] = true;
+        } else {
+          isShown[index] = false;
+        }
+      });
+
+      var dataPoints1 = [];
+      var dataPoints2 = [];
+      var dataPoints3 = [];
+      var dataPoints4 = [];
+      var dataPoints5 = [];
+
+      var options = {
+        title: {
+          text: "Live Reports",
+        },
+        axisX: {
+          title: "chart updates every 2 secs",
+        },
+        axisY: {
+          suffix: "USD",
+        },
+        toolTip: {
+          shared: true,
+        },
+        legend: {
+          cursor: "pointer",
+          verticalAlign: "top",
+          fontSize: 22,
+          fontColor: "dimGrey",
+          itemclick: toggleDataSeries,
+        },
+        data: [
+          {
+            type: "line",
+            xValueType: "dateTime",
+            yValueFormatString: "###.00",
+            xValueFormatString: "hh:mm:ss TT",
+            showInLegend: isShown[0],
+            name: `${followedCoins[0].name}`,
+            dataPoints: dataPoints1,
+          },
+          {
+            type: "line",
+            xValueType: "dateTime",
+            yValueFormatString: "###.00",
+            showInLegend: isShown[1],
+            name: `${followedCoins[1].name}`,
+            dataPoints: dataPoints2,
+          },
+          {
+            type: "line",
+            xValueType: "dateTime",
+            yValueFormatString: "###.00",
+            showInLegend: isShown[2],
+            name: `${followedCoins[2].name}`,
+            dataPoints: dataPoints3,
+          },
+          {
+            type: "line",
+            xValueType: "dateTime",
+            yValueFormatString: "###.00",
+            showInLegend: isShown[3],
+            name: `${followedCoins[3].name}`,
+            dataPoints: dataPoints4,
+          },
+          {
+            type: "line",
+            xValueType: "dateTime",
+            yValueFormatString: "###.00",
+            showInLegend: isShown[4],
+            name: `${followedCoins[4].name}`,
+            dataPoints: dataPoints5,
+          },
+        ],
+      };
+
+      var chart = $("#chartContainer").CanvasJSChart(options);
+
+      function toggleDataSeries(e) {
+        if (
+          typeof e.dataSeries.visible === "undefined" ||
+          e.dataSeries.visible
+        ) {
+          e.dataSeries.visible = false;
+        } else {
+          e.dataSeries.visible = true;
+        }
+        e.chart.render();
+      }
+
+      // initial value
+
+      let yValue = [];
+
+      followedCoins.forEach((item, index) => {
+        let id = item.symbol;
         if (id !== undefined) {
           let result = null;
           id = id.toUpperCase();
 
           $.ajax({
             url: `https://min-api.cryptocompare.com/data/pricemulti?fsyms=${id}&tsyms=USD`,
-            success: (data) => {
-              result = data;
-            },
+            success: (data) => (result = data),
             error: (err) => console.error(err.status, err.responseText),
           }).done(() => {
             result = Object.values(result);
 
             yValue[index] = result[0].USD;
-
-            dataPoints1.push({
-              x: time.getTime(),
-              y: yValue[0],
-            });
-            dataPoints2.push({
-              x: time.getTime(),
-              y: yValue[1],
-            });
-            dataPoints3.push({
-              x: time.getTime(),
-              y: yValue[2],
-            });
-            dataPoints4.push({
-              x: time.getTime(),
-              y: yValue[3],
-            });
-            dataPoints5.push({
-              x: time.getTime(),
-              y: yValue[4],
-            });
-            options.data[0].legendText =
-              `${followedCoins[0].name}: ` + yValue[0] + "$";
-            options.data[1].legendText =
-              `${followedCoins[1].name}: ` + yValue[1] + "$";
-            options.data[2].legendText =
-              `${followedCoins[2].name}: ` + yValue[2] + "$";
-            options.data[3].legendText =
-              `${followedCoins[3].name}: ` + yValue[3] + "$";
-            options.data[4].legendText =
-              `${followedCoins[4].name}: ` + yValue[4] + "$";
           });
         }
       });
 
-      $("#chartContainer").CanvasJSChart().render();
+      const updateInterval = 2000;
+
+      let time = new Date();
+
+      function updateChart(count) {
+        count = count || 1;
+
+        for (var i = 0; i < count; i++) {
+          time.setTime(time.getTime() + updateInterval);
+        }
+
+        yValue.forEach((item, index) => {
+          let id = followedCoins[index].symbol;
+          if (id !== undefined) {
+            let result = null;
+            id = id.toUpperCase();
+
+            $.ajax({
+              url: `https://min-api.cryptocompare.com/data/pricemulti?fsyms=${id}&tsyms=USD`,
+              success: (data) => {
+                result = data;
+              },
+              error: (err) => console.error(err.status, err.responseText),
+            }).done(() => {
+              result = Object.values(result);
+
+              yValue[index] = result[0].USD;
+
+              dataPoints1.push({
+                x: time.getTime(),
+                y: yValue[0],
+              });
+              dataPoints2.push({
+                x: time.getTime(),
+                y: yValue[1],
+              });
+              dataPoints3.push({
+                x: time.getTime(),
+                y: yValue[2],
+              });
+              dataPoints4.push({
+                x: time.getTime(),
+                y: yValue[3],
+              });
+              dataPoints5.push({
+                x: time.getTime(),
+                y: yValue[4],
+              });
+              options.data[0].legendText =
+                `${followedCoins[0].name}: ` + yValue[0] + "$";
+              options.data[1].legendText =
+                `${followedCoins[1].name}: ` + yValue[1] + "$";
+              options.data[2].legendText =
+                `${followedCoins[2].name}: ` + yValue[2] + "$";
+              options.data[3].legendText =
+                `${followedCoins[3].name}: ` + yValue[3] + "$";
+              options.data[4].legendText =
+                `${followedCoins[4].name}: ` + yValue[4] + "$";
+            });
+          }
+        });
+
+        $("#chartContainer").CanvasJSChart().render();
+      }
+
+      updateChart(100);
+      let chartInterval = setInterval(function () {
+        updateChart();
+      }, updateInterval);
+      home.on("click", () => {
+        clearInterval(chartInterval);
+      });
+      about.on("click", () => {
+        clearInterval(chartInterval);
+      });
     }
-    // generates first set of dataPoints
-    updateChart(100);
-    let chartInterval = setInterval(function () {
-      updateChart();
-    }, updateInterval);
-    home.on("click", () => {
-      clearInterval(chartInterval);
-    });
-    about.on("click", () => {
-      clearInterval(chartInterval);
-    });
   }
 
   function renderAbout() {
