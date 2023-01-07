@@ -92,7 +92,7 @@ $(function () {
             </div>
 
           <div class="collapse btn btn-info" id="moreInfo_${coin.id}">
-            <div class="card card-body ${coin.id}" id="">
+            <div class="card inner-collapse-card card-body ${coin.id}" >
 
               
             </div>

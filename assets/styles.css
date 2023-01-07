@@ -1,6 +1,5 @@
 body {
   align-content: center;
-  
 }
 
 h1 {
@@ -115,7 +114,6 @@ input:checked + .slider:before {
   color: whitesmoke;
 }
 
-
 .parallax {
   background-image: url("/assets/background.jpg");
 
@@ -129,6 +127,13 @@ input:checked + .slider:before {
 
 .collapse {
   margin-bottom: 0.5rem;
+}
+
+.inner-collapse-card {
+  text-align: left;
+  background-color: #002f55;
+  color: aqua;
+  font-weight: bold;
 }
 
 .loader {
@@ -166,7 +171,6 @@ input:checked + .slider:before {
 .about-container {
   width: 20rem;
 }
-
 
 #chartContainer {
   height: 370px;
